@@ -3,6 +3,7 @@ defmodule TypeheroWeb.UserSocket do
 
   ## Channels
   # channel "rooms:*", TypeheroWeb.RoomChannel
+  channel "games:lobby", TypeheroWeb.LobbyChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
