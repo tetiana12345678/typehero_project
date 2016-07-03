@@ -23,7 +23,7 @@ defmodule TypeheroWeb.Mixfile do
   def application do
     [mod: {TypeheroWeb, []},
      applications: [:phoenix, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex]]
+                    :phoenix_ecto, :postgrex, :typehero]]
   end
 
   # Specifies which paths to compile per environment.
