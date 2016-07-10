@@ -7,12 +7,13 @@ defmodule Typehero do
     import Supervisor.Spec, warn: false
 
     children = [
-      supervisor(Typehero.Game, [])
+      # supervisor(Typehero.Game, [])
+      supervisor(Typehero.TextSupervisor, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Typehero.Supervisor]
+    opts = [strategy: :one_for_one, name: __MODULE__]
     Supervisor.start_link(children, opts)
   end
 
@@ -20,7 +21,15 @@ defmodule Typehero do
     Typehero.TextSupervisor.start_game(text)
   end
 
-  def check_key(pid, letter) do
-    Typehero.Text.check_key(pid, letter)
+  def key_press(pid, letter, count) do
+    Typehero.Text.key_press(pid, letter, count)
+  end
+
+  def finger_press(pid, letter, count) do
+    Typehero.Text.finger_press(pid, letter, count)
+  end
+
+  def get_state(pid) do
+    Typehero.Text.get_state(pid)
   end
 end
