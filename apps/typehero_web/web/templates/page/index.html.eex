@@ -1,5 +1,1 @@
-<div>
-    <h2>pid: <%= pid_here %></h2>
-</div>
-
 <div id="phaser"></div>
