@@ -8,7 +8,7 @@ defmodule Typehero.TextSupervisor do
     Supervisor.start_link(children, opts)
   end
 
-  def start_game(text) do
-    Supervisor.start_child(__MODULE__, [text])
+  def start_game do
+    Supervisor.start_child(__MODULE__)
   end
 end

@@ -8,7 +8,9 @@ defmodule Typehero do
 
     children = [
       # supervisor(Typehero.Game, [])
-      supervisor(Typehero.TextSupervisor, [])
+      supervisor(Typehero.TextSupervisor, []),
+      #TODO look at the best supervision strategy for current problem
+      worker(Typehero.EventHandler, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
@@ -17,8 +19,8 @@ defmodule Typehero do
     Supervisor.start_link(children, opts)
   end
 
-  def start_game(text) do
-    Typehero.TextSupervisor.start_game(text)
+  def start_game do
+    Typehero.TextSupervisor.start_game
   end
 
   def key_press(pid, letter, count) do
