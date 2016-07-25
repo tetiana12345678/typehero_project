@@ -16,6 +16,11 @@ defmodule TypeheroWeb.LobbyChannel do
     {:noreply, socket}
   end
 
+  def handle_in("key", payload, socket) do
+    Typehero.key(payload)
+    {:noreply, socket}
+  end
+
   def handle_in("shout", payload, socket) do
     broadcast socket, "shout", payload
     {:noreply, socket}
