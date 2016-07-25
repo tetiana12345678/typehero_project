@@ -1,9 +1,8 @@
 defmodule Typehero.Text do
   use GenServer
 
-
-  def start_link() do
-    GenServer.start_link(__MODULE__, "a")
+  def start_link do
+    GenServer.start_link(__MODULE__, [])
   end
 
   def key_press(pid, key, count) do
@@ -14,6 +13,10 @@ defmodule Typehero.Text do
     GenServer.call(pid, :status)
   end
 
+  def get_text(pid) do
+    GenServer.call(pid, :get_text)
+  end
+
   def get_current_letter(pid) do
     GenServer.call(pid, :current_letter)
   end
@@ -22,12 +25,19 @@ defmodule Typehero.Text do
     GenServer.cast(pid, {:receive, :finger, finger, count})  #change to __MODULE__ instead of pid
   end
 
-  def init(text) do
-    {:ok, {String.codepoints(text)}}
+  def init(state) do
+    # Get text from Ecto...
+    text = "Hello keith you crazy kid!"
+    state = {text}
+    {:ok, state}
   end
 
   def handle_call(:status, _from, state) do
     {:reply, state, state}
+  end
+
+  def handle_call(:get_text, _from, state = {text}) do
+    {:reply, text, state}
   end
 
   def handle_call(:current_letter, _from, state) do

@@ -20,7 +20,8 @@ defmodule Typehero do
   end
 
   def start_game do
-    Typehero.TextSupervisor.start_game
+    {:ok, pid} = Typehero.TextSupervisor.start_game
+    Typehero.Text.get_text(pid)
   end
 
   def key_press(pid, letter, count) do
