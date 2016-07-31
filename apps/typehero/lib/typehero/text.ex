@@ -13,6 +13,7 @@ defmodule Typehero.Text do
   end
 
   def key_press(key, count) do
+    #TODO decide if count should be passed in or calling Sequencer.next_key would be better.
     GenServer.cast(:text, {:receive, :key_press, key, count})
   end
 
@@ -40,22 +41,12 @@ defmodule Typehero.Text do
   end
 
   def handle_cast({:receive, :finger, finger, count}, current_letter) do
-    IO.puts "hello you"
-    # EventHandler.process_finger_event(
-    #   Map.get(keyboard_events, count),
-    #   text,
-    #   keyboard_events,
-    #   finger_events,
-    #   count,
-    #   finger
-    # )
+    Typehero.EventHandler.finger_event(finger, count)
     {:noreply, current_letter}
   end
 
   def handle_cast({:receive, :key_press, key, count}, current_letter) do
-    #TODO call Typehero.EventHandler.key_event from here and make sure handle_cast({:receive, :key_event, ...}) is triggered
-    # {:ok, pid} = Typehero.EventHandler.start_link
-    # Typehero.EventHandler.key_event(pid, key, count)
+    Typehero.EventHandler.key_event(key, count)
     {:noreply, current_letter}
   end
 end

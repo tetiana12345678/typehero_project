@@ -1,102 +1,85 @@
+defmodule Typehero.KeyFinger do
+  defstruct key_events: %{}, finger_events: %{}
+end
+
 defmodule Typehero.EventHandler do
   use GenServer
   alias Typehero.EventHandler.KeyFingerMatch
   alias Typehero.Text
+  alias Typehero.KeyFinger
 
   def start_link() do
-    GenServer.start_link(__MODULE__, {%{}, %{}})
+    GenServer.start_link(__MODULE__, %KeyFinger{}, name: :event_handler)
   end
 
-  def key_event(pid, key, count) do
-    IO.inspect __MODULE__
-    GenServer.cast(pid, {:receive, :key_event, key, count})
+  def key_event(key, count) do
+    GenServer.cast(:event_handler, {:receive, :key_event, key, count})
   end
 
-  def get_state(pid) do
-    GenServer.call(pid, :status)
+  def finger_event(finger, count) do
+    GenServer.cast(:event_handler, {:receive, :finger_event, finger, count})
   end
 
-  def finger_event(pid, finger, count) do
-    GenServer.cast(pid, {:receive, :finger_event, finger, count})
+  def get_state do
+    GenServer.call(:event_handler, :get_state)
   end
 
   def init do
-    state = {%{}, %{}}
+    state = %KeyFinger{}
     {:ok, state}
   end
 
-  def handle_call(:status, _from, state) do
+  def handle_call(:get_state, _from, state) do
     {:reply, state, state}
   end
 
-  def handle_cast({:receive, :key_event, key, count}, {keyboard_events, finger_events}) do
-    IO.puts "did we get here?"
-    process_keyboard_event(Map.get(finger_events, count), keyboard_events, finger_events, count, key)
+  def handle_cast({:receive, :key_event, key, count}, events = %KeyFinger{finger_events: finger_events}) do
+    process_key_event(Map.get(finger_events, count), events, count, key)
   end
 
-  def handle_cast({:receive, :finger_event, key, count}, {keyboard_events, finger_events}) do
-    process_finger_event(Map.get(finger_events, count), keyboard_events, finger_events, count, key)
+  def handle_cast({:receive, :finger_event, finger, count}, events = %KeyFinger{key_events: key_events}) do
+    process_finger_event(Map.get(key_events, count), events, count, finger)
   end
 
-  def process_keyboard_event(nil, keyboard_events, finger_events, count, key) do
-    {:noreply, {Map.put(keyboard_events, count, key), finger_events}}
+  defp process_key_event(nil, events = %KeyFinger{key_events: key_events}, count, key) do
+    updated_key_events_map = Map.put(key_events, count, key)
+    {:noreply, Map.put(%KeyFinger{}, :key_events, updated_key_events_map)}
   end
 
-  def process_finger_event(nil, keyboard_events, finger_events, count, finger) do
-    IO.puts "alilya"
-    {:noreply, {keyboard_events, Map.put(finger_events, count, finger)}}
+  defp process_key_event(finger, %KeyFinger{}, count, key) do
+    match_result = KeyFingerMatch.match_key_to_finger(finger, String.to_atom(key))
+    correct_key_finger(match_result, key, count)
   end
 
-  def process_keyboard_event(finger, keyboard_events, finger_events, count, key) do
-    correct_key_finger(KeyFingerMatch.match_key_to_finger(finger, String.to_atom(key)))
-    #TODO call Text.get_current_letter from here and get the letter
-    #Proceed with refactoring matching key-letter logic
-    correct_key_letter(Text.get_current_letter == key)
+  defp process_finger_event(nil, events = %KeyFinger{finger_events: finger_events}, count, finger) do
+    updated_finger_events_map = Map.put(finger_events, count, finger)
+    {:noreply, Map.put(%KeyFinger{}, :finger_events, updated_finger_events_map)}
   end
 
-  def correct_key_finger(:match) do
-    IO.puts "bla-bla"
+  defp process_finger_event(key, %KeyFinger{}, count, finger) do
+    match_result = KeyFingerMatch.match_key_to_finger(finger, String.to_atom(key))
+    correct_key_finger(match_result, key, count)
   end
 
-  def correct_key_finger(:dismatch) do
-    IO.puts "well. not matching also a result"
+  defp correct_key_finger(:match, key, count) do
+    correct_key_letter(Text.get_current_letter == key, count)
   end
 
-  def correct_key_letter(true) do
-    IO.puts "inside the correct key_letter"
+  defp correct_key_finger(:dismatch, key, count) do
+    correct_key_letter(Text.get_current_letter == key, count)
   end
 
-  def correct_key_letter(false) do
-    IO.puts "inside the correct key_letter"
+  defp correct_key_letter(true, count) do
+    struct = %KeyFinger{}
+    IO.puts "notify the UI web and serial"
+    IO.puts "update current text index"
+    {:noreply, %{struct | key_events: Map.delete(struct.key_events, count), finger_events: Map.delete(struct.finger_events, count)}}
   end
 
-  def match_letter_to_key_pressed_from_keyboard(text = [], key, keyboard_events, finger_events, count) do
-    {:noreply, :finish}
-  end
-
-  def match_letter_to_key_pressed_from_keyboard(text, key, keyboard_events, finger_events, count) do
-    [first_letter | rest_of_the_text] = text
-    cond do
-      first_letter == key -> {:noreply, {rest_of_the_text, {keyboard_events, Map.delete(finger_events, count)}}}
-      true -> {:reply, :error, {text, {keyboard_events, Map.delete(finger_events, count)}}}
-    end
-  end
-
-  def match_letter_to_key_pressed_from_finger(text = [], key, keyboard_events, finger_events, count) do
-    {:noreply, :finish}
-  end
-
-  def match_letter_to_key_pressed_from_finger(text, key, keyboard_events, finger_events, count) do
-    [first_letter | rest_of_the_text] = text
-
-    cond do
-      first_letter == key -> IO.puts "letter matches"; {:noreply, {rest_of_the_text, {Map.delete(keyboard_events, count), finger_events}}}
-      true -> IO.puts "letter dont match"; {:noreply, {text, {Map.delete(keyboard_events, count), finger_events}}}
-    end
-  end
-
-
-  def process_finger_event(key, text, keyboard_events, finger_events, count, finger) do
-    match_letter_to_key_pressed_from_finger(text, key, keyboard_events, finger_events, count)
+  defp correct_key_letter(false, count) do
+    struct = %KeyFinger{}
+    IO.puts "notify the UI web and serial"
+    IO.puts "update current text index"
+    {:noreply, %{struct | key_events: Map.delete(struct.key_events, count), finger_events: Map.delete(struct.finger_events, count)}}
   end
 end
