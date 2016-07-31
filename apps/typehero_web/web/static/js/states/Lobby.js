@@ -7,7 +7,7 @@ export class Lobby extends Phaser.State {
     }
     create() {
         this.channel.on("start_game", (payload) => {
-            this.renderText(payload.text)
+            this.startGame(payload.text)
         })
         const start_button = createLabel(this, "start")
         start_button.anchor.setTo(0.5)
@@ -17,9 +17,25 @@ export class Lobby extends Phaser.State {
         })
     }
 
+    startGame(text) {
+        this.renderText(text)
+        this.listenKeyboard()
+    }
+
     renderText(text) {
         const render_text = createLabel(this, text)
         render_text.anchor.setTo(0.5)
         render_text.position.setTo(370, 300)
     }
+
+    listenKeyboard() {
+      this.input.keyboard.addCallbacks(this, this.onPress)
+    }
+
+    onPress(event) {
+      // Send key events to the server...
+      // this.channel.push("key", event.key)
+      console.log(event)
+    }
+
 }

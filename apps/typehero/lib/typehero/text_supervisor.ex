@@ -9,6 +9,6 @@ defmodule Typehero.TextSupervisor do
   end
 
   def start_game do
-    Supervisor.start_child(__MODULE__)
+    Supervisor.start_child(__MODULE__, [])
   end
 end

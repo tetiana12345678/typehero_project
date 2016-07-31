@@ -1,15 +1,23 @@
 defmodule TypeheroWeb.LobbyChannel do
   use TypeheroWeb.Web, :channel
-  @text "hello you crazy Keith!"
 
   def join("games:lobby", payload, socket) do
     {:ok, socket}
   end
 
   def handle_in("start_game", payload, socket) do
-    {:ok, pid} = Typehero.start_game(@text)
-    IO.inspect "hello"
-    push socket, "start_game", %{text: @text}
+
+    IO.puts("Hello we got here...")
+
+    # {:ok, pid} =
+    text = Typehero.start_game()
+
+    push socket, "start_game", %{text: text}
+    {:noreply, socket}
+  end
+
+  def handle_in("key", payload, socket) do
+    Typehero.key(payload)
     {:noreply, socket}
   end
 
