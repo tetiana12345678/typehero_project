@@ -9,15 +9,14 @@ defmodule TypeheroWeb.LobbyChannel do
 
     IO.puts("Hello we got here...")
 
-    # {:ok, pid} =
-    text = Typehero.start_game()
+    text = Typehero.Text.get_text
 
     push socket, "start_game", %{text: text}
     {:noreply, socket}
   end
 
   def handle_in("key", payload, socket) do
-    Typehero.key(payload)
+    #TODO call Typehero.Text.key_press(key, count)
     {:noreply, socket}
   end
 

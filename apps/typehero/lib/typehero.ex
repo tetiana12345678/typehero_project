@@ -18,21 +18,4 @@ defmodule Typehero do
     opts = [strategy: :one_for_one, name: __MODULE__]
     Supervisor.start_link(children, opts)
   end
-
-  def start_game do
-    {:ok, pid} = Typehero.TextSupervisor.start_game
-    Typehero.Text.get_text(pid)
-  end
-
-  def key_press(pid, letter, count) do
-    Typehero.Text.key_press(pid, letter, count)
-  end
-
-  def finger_press(pid, letter, count) do
-    Typehero.Text.finger_press(pid, letter, count)
-  end
-
-  def get_state(pid) do
-    Typehero.Text.get_state(pid)
-  end
 end
