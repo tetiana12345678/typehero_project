@@ -8,7 +8,7 @@ defmodule TypeheroSerial do
 
     children = [
       # Define workers and child supervisors to be supervised
-      # worker(TypeheroSerial.Worker, [arg1, arg2, arg3]),
+      worker(TypeheroSerial.Formatter, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

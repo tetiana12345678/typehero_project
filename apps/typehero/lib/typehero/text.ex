@@ -18,6 +18,7 @@ defmodule Typehero.Text do
   end
 
   def finger_press(finger, count) do
+    IO.puts "inside finger press"
     GenServer.cast(:text, {:receive, :finger, finger, count})
   end
 
