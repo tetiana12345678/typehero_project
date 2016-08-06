@@ -2,9 +2,7 @@ defmodule Typehero.Text do
   use GenServer
 
   def start_link do
-    IO.puts "got here boo"
     IO.puts "started Text worker"
-    IO.inspect __MODULE__
     GenServer.start_link(__MODULE__, [], name: :text)
   end
 
@@ -12,13 +10,15 @@ defmodule Typehero.Text do
     GenServer.call(:text, :get_text)
   end
 
-  def key_press(key, count) do
-    #TODO decide if count should be passed in or calling Sequencer.next_key would be better.
-    GenServer.cast(:text, {:receive, :key_press, key, count})
+  def get_state do
+    GenServer.call(:text, :get_state)
+  end
+
+  def key_press(key, count, socket) do
+    GenServer.cast(:text, {:receive, :key_press, key, count, socket})
   end
 
   def finger_press(finger, count) do
-    IO.puts "inside finger press"
     GenServer.cast(:text, {:receive, :finger, finger, count})
   end
 
@@ -26,28 +26,41 @@ defmodule Typehero.Text do
     GenServer.call(:text, :get_current_letter)
   end
 
+  def notify_web(payload) do
+    GenServer.cast(:text, {:receive, payload})
+  end
+
   def init(state) do
     # Get text from Ecto...
-    state = "Hello keith you crazy kid"
+    state = %{text: "Hello keith you crazy kid", socket: %{}}
     {:ok, state}
   end
 
-  def handle_call(:get_text, _from, state) do
+  def handle_call(:get_state, _from, state) do
     {:reply, state, state}
   end
 
-  def handle_call(:get_current_letter, _from, state) do
-    current_letter = String.at(state, 0)
+  def handle_call(:get_text, _from, state = %{text: text}) do
+    {:reply, text, state}
+  end
+
+  def handle_call(:get_current_letter, _from, state = %{text: text}) do
+    current_letter = String.at(text, 0)
     {:reply, current_letter, state}
   end
 
-  def handle_cast({:receive, :finger, finger, count}, current_letter) do
+  def handle_cast({:receive, :finger, finger, count}, state) do
     Typehero.EventHandler.finger_event(finger, count)
-    {:noreply, current_letter}
+    {:noreply, state}
   end
 
-  def handle_cast({:receive, :key_press, key, count}, current_letter) do
+  def handle_cast({:receive, :key_press, key, count, socket}, state) do
     Typehero.EventHandler.key_event(key, count)
-    {:noreply, current_letter}
+    {:noreply, %{state | socket: socket}}
+  end
+
+  def handle_cast({:receive, text}, state) do
+    TypeheroWeb.LobbyChannel.handle_in("result", text, state.socket)
+    {:noreply, state}
   end
 end

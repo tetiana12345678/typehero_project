@@ -46,9 +46,9 @@ defmodule Typehero.EventHandler do
     {:noreply, Map.put(%KeyFinger{}, :key_events, updated_key_events_map)}
   end
 
-  defp process_key_event(finger, %KeyFinger{}, count, key) do
+  defp process_key_event(finger, struct = %KeyFinger{}, count, key) do
     match_result = KeyFingerMatch.match_key_to_finger(finger, String.to_atom(key))
-    correct_key_finger(match_result, key, count)
+    correct_key_finger(match_result, key, count, struct)
   end
 
   defp process_finger_event(nil, events = %KeyFinger{finger_events: finger_events}, count, finger) do
@@ -56,30 +56,64 @@ defmodule Typehero.EventHandler do
     {:noreply, Map.put(%KeyFinger{}, :finger_events, updated_finger_events_map)}
   end
 
-  defp process_finger_event(key, %KeyFinger{}, count, finger) do
+  defp process_finger_event(key, struct = %KeyFinger{}, count, finger) do
     match_result = KeyFingerMatch.match_key_to_finger(finger, String.to_atom(key))
-    correct_key_finger(match_result, key, count)
+    correct_key_finger(match_result, key, count, struct)
   end
 
-  defp correct_key_finger(:match, key, count) do
-    correct_key_letter(Text.get_current_letter == key, count)
+  defp correct_key_finger(:match = result, key, count, struct) do
+    correct_key_letter(Text.get_current_letter == key, result, count, struct)
   end
 
-  defp correct_key_finger(:dismatch, key, count) do
-    correct_key_letter(Text.get_current_letter == key, count)
+  defp correct_key_finger(:dismatch = result, key, count, struct) do
+    correct_key_letter(Text.get_current_letter == key, result, count, struct)
   end
 
-  defp correct_key_letter(true, count) do
-    struct = %KeyFinger{}
+  defp correct_key_letter(true, :match, count, struct) do
     IO.puts "notify the UI web and serial"
     IO.puts "update current text index"
-    {:noreply, %{struct | key_events: Map.delete(struct.key_events, count), finger_events: Map.delete(struct.finger_events, count)}}
+
+    Text.notify_web(%{result: :all_match, count: count})
+    {:noreply,
+     %{struct | key_events: Map.delete(struct.key_events, count),
+       finger_events: Map.delete(struct.finger_events, count)
+      }
+    }
   end
 
-  defp correct_key_letter(false, count) do
-    struct = %KeyFinger{}
+  defp correct_key_letter(true, :dismatch, count, struct) do
     IO.puts "notify the UI web and serial"
     IO.puts "update current text index"
-    {:noreply, %{struct | key_events: Map.delete(struct.key_events, count), finger_events: Map.delete(struct.finger_events, count)}}
+
+    Text.notify_web(%{result: :letter_key, count: count})
+    {:noreply,
+     %{struct | key_events: Map.delete(struct.key_events, count),
+       finger_events: Map.delete(struct.finger_events, count)
+      }
+    }
+  end
+
+  defp correct_key_letter(false, :match, count, struct) do
+    IO.puts "notify the UI web and serial"
+    IO.puts "update current text index"
+
+    Text.notify_web(%{result: :finger_key, count: count})
+    {:noreply,
+     %{struct | key_events: Map.delete(struct.key_events, count),
+       finger_events: Map.delete(struct.finger_events, count)
+      }
+    }
+  end
+
+  defp correct_key_letter(false, :dismatch, count, struct) do
+    IO.puts "notify the UI web and serial"
+    IO.puts "update current text index"
+
+    Text.notify_web(%{result: :nothing_match, count: count})
+    {:noreply,
+     %{struct | key_events: Map.delete(struct.key_events, count),
+       finger_events: Map.delete(struct.finger_events, count)
+      }
+    }
   end
 end

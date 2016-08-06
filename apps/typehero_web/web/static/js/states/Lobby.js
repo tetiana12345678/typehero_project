@@ -10,6 +10,9 @@ export class Lobby extends Phaser.State {
     this.channel.on("start_game", (payload) => {
       this.startGame(payload.text)
     })
+    this.channel.on("result", (payload) => {
+      console.log(payload)
+    })
     const start_button = createLabel(this, "start")
     start_button.anchor.setTo(0.5)
     start_button.inputEnabled = true
