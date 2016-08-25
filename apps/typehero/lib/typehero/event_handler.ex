@@ -5,7 +5,7 @@ end
 defmodule Typehero.EventHandler do
   use GenServer
   alias Typehero.EventHandler.KeyFingerMatch
-  alias Typehero.Text
+  alias Typehero.Core
   alias Typehero.KeyFinger
 
   def start_link() do
@@ -62,19 +62,19 @@ defmodule Typehero.EventHandler do
   end
 
   defp correct_key_finger(:match = result, key, count, struct) do
-    correct_key_letter(Text.get_current_letter == key, result, count, struct)
+    correct_key_letter(Core.get_current_letter == key, result, count, struct)
   end
 
   defp correct_key_finger(:dismatch = result, key, count, struct) do
-    correct_key_letter(Text.get_current_letter == key, result, count, struct)
+    correct_key_letter(Core.get_current_letter == key, result, count, struct)
   end
 
   defp correct_key_letter(true, :match, count, struct) do
     IO.puts "notify the UI serial"
     IO.puts "save event"
 
-    Text.update_text
-    Text.notify_web(%{result: :all_match, count: count})
+    Core.update_text
+    Core.notify_web(%{result: :all_match, count: count})
     {:noreply,
      %{struct | key_events: Map.delete(struct.key_events, count),
        finger_events: Map.delete(struct.finger_events, count)
@@ -86,7 +86,7 @@ defmodule Typehero.EventHandler do
     IO.puts "notify the UI serial"
     IO.puts "save event"
 
-    Text.notify_web(%{result: :letter_key, count: count})
+    Core.notify_web(%{result: :letter_key, count: count})
     {:noreply,
      %{struct | key_events: Map.delete(struct.key_events, count),
        finger_events: Map.delete(struct.finger_events, count)
@@ -98,7 +98,7 @@ defmodule Typehero.EventHandler do
     IO.puts "notify the UI serial"
     IO.puts "save event"
 
-    Text.notify_web(%{result: :finger_key, count: count})
+    Core.notify_web(%{result: :finger_key, count: count})
     {:noreply,
      %{struct | key_events: Map.delete(struct.key_events, count),
        finger_events: Map.delete(struct.finger_events, count)
@@ -110,7 +110,7 @@ defmodule Typehero.EventHandler do
     IO.puts "notify the UI serial"
     IO.puts "save event"
 
-    Text.notify_web(%{result: :nothing_match, count: count})
+    Core.notify_web(%{result: :nothing_match, count: count})
     {:noreply,
      %{struct | key_events: Map.delete(struct.key_events, count),
        finger_events: Map.delete(struct.finger_events, count)

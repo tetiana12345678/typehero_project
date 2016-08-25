@@ -8,7 +8,7 @@ defmodule Typehero do
 
     children = [
       # supervisor(Typehero.Game, [])
-      supervisor(Typehero.TextSupervisor, []),
+      supervisor(Typehero.CoreSupervisor, []),
       #TODO look at the best supervision strategy for current problem
       worker(Typehero.EventHandler, [])
     ]

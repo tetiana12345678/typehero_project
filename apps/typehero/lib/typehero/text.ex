@@ -1,8 +1,8 @@
-defmodule Typehero.Text do
+defmodule Typehero.Core do
   use GenServer
 
   def start_link do
-    IO.puts "started Text worker"
+    IO.puts "started Core worker"
     GenServer.start_link(__MODULE__, [], name: :text)
   end
 

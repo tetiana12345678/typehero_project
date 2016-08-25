@@ -1,9 +1,9 @@
-defmodule Typehero.TextSupervisor do
+defmodule Typehero.CoreSupervisor do
   def start_link do
-    IO.puts "started TextSupervisor"
+    IO.puts "started CoreSupervisor"
     import Supervisor.Spec, warn: false
     children = [
-      worker(Typehero.Text, [], [restart: :transient])
+      worker(Typehero.Core, [], [restart: :transient])
     ]
     opts = [strategy: :one_for_one, name: __MODULE__]
     Supervisor.start_link(children, opts)

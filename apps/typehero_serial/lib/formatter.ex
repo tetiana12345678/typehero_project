@@ -17,7 +17,7 @@ defmodule TypeheroSerial.Formatter do
 
   def handle_info({:elixir_serial, serial, data}, state) do
     cond do
-      data =~ ~r/1/ -> Typehero.Text.finger_press(1, state)
+      data =~ ~r/1/ -> Typehero.Core.finger_press(1, state)
       data =~ ~r/2/ -> IO.puts "hello finger 2"
       true -> nil
     end
