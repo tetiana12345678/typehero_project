@@ -14,7 +14,7 @@ defmodule TypeheroTest do
   end
 
   test "key_press flow is correct" do
-    Text.key_press("q", 1)
+    Text.key_press("q", 1, nil)
     :timer.sleep(10)
     assert EH.get_state == %Typehero.KeyFinger{finger_events: %{}, key_events: %{1 => "q"}}
 
@@ -27,7 +27,7 @@ defmodule TypeheroTest do
     Text.finger_press(1, 1)
     :timer.sleep(10)
     assert EH.get_state == %Typehero.KeyFinger{finger_events: %{1 => 1}, key_events: %{}}
-    Text.key_press("q", 1)
+    Text.key_press("q", 1, nil)
     :timer.sleep(10)
     assert EH.get_state == %Typehero.KeyFinger{finger_events: %{}, key_events: %{}}
   end

@@ -70,9 +70,10 @@ defmodule Typehero.EventHandler do
   end
 
   defp correct_key_letter(true, :match, count, struct) do
-    IO.puts "notify the UI web and serial"
-    IO.puts "update current text index"
+    IO.puts "notify the UI serial"
+    IO.puts "save event"
 
+    Text.update_text
     Text.notify_web(%{result: :all_match, count: count})
     {:noreply,
      %{struct | key_events: Map.delete(struct.key_events, count),
@@ -82,8 +83,8 @@ defmodule Typehero.EventHandler do
   end
 
   defp correct_key_letter(true, :dismatch, count, struct) do
-    IO.puts "notify the UI web and serial"
-    IO.puts "update current text index"
+    IO.puts "notify the UI serial"
+    IO.puts "save event"
 
     Text.notify_web(%{result: :letter_key, count: count})
     {:noreply,
@@ -94,8 +95,8 @@ defmodule Typehero.EventHandler do
   end
 
   defp correct_key_letter(false, :match, count, struct) do
-    IO.puts "notify the UI web and serial"
-    IO.puts "update current text index"
+    IO.puts "notify the UI serial"
+    IO.puts "save event"
 
     Text.notify_web(%{result: :finger_key, count: count})
     {:noreply,
@@ -106,8 +107,8 @@ defmodule Typehero.EventHandler do
   end
 
   defp correct_key_letter(false, :dismatch, count, struct) do
-    IO.puts "notify the UI web and serial"
-    IO.puts "update current text index"
+    IO.puts "notify the UI serial"
+    IO.puts "save event"
 
     Text.notify_web(%{result: :nothing_match, count: count})
     {:noreply,

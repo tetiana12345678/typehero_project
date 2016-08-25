@@ -26,6 +26,10 @@ defmodule Typehero.Text do
     GenServer.call(:text, :get_current_letter)
   end
 
+  def update_text do
+    GenServer.call(:text, :update_text)
+  end
+
   def notify_web(payload) do
     GenServer.cast(:text, {:receive, payload})
   end
@@ -45,8 +49,12 @@ defmodule Typehero.Text do
   end
 
   def handle_call(:get_current_letter, _from, state = %{text: text}) do
-    current_letter = String.at(text, 0)
-    {:reply, current_letter, state}
+    {:reply, String.first(text), state}
+  end
+
+  def handle_call(:update_text, _from, state = %{text: text}) do
+    [_, del: updated_text] = String.myers_difference(text, String.first(text))
+    {:reply, %{state | text: updated_text}, state}
   end
 
   def handle_cast({:receive, :finger, finger, count}, state) do
