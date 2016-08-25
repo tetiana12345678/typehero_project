@@ -6,13 +6,13 @@ defmodule TypeheroWeb.LobbyChannel do
   end
 
   def handle_in("start_game", payload, socket) do
-    text = Typehero.Text.get_text
+    text = Typehero.Core.get_text
     push socket, "start_game", %{text: text}
     {:noreply, socket}
   end
 
   def handle_in("key", %{"key"=> key, "count"=> count}, socket) do
-    Typehero.Text.key_press(key, count, socket)
+    Typehero.Core.key_press(key, count, socket)
     {:noreply, socket}
   end
 
