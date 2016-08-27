@@ -5,6 +5,7 @@ export class Lobby extends Phaser.State {
     const [channel] = args
     this.channel = channel
     this.count = 1
+    this.key_press_events = {}
   }
   create() {
     this.channel.on("start_game", (payload) => {
@@ -29,23 +30,29 @@ export class Lobby extends Phaser.State {
     this.listenKeyboard()
   }
 
-  renderResult(payload) {
+  renderResult({result, count}) {
     const green_letter_style = {font: "45px Arial", fill: "#008000", align: 'left'}
     const red_letter_style = {font: "45px Arial", fill: "#008000", align: 'left'}
     const yellow_letter_style = {font: "45px Arial", fill: "#008000", align: 'left'}
     const text_style = {font: "45px Arial", fill: "#ffffff", wordWrap: true, wordWrapWidth: 700, align: 'left'}
 
-    const letter = this.text.charAt(0)
+    const letter = this.key_press_events[count]
     const render_text = createLabel(this, this.text, text_style)
 
-    if (payload.result == "finger_key") {
+    if (result == "all_match") {
+      const render_letter = createLabel(this, letter, green_letter_style)
+    }
+
+    if (result == "nothing_match") {
       const render_letter = createLabel(this, letter, red_letter_style)
       render_letter.anchor.setTo(0.5)
     }
-    if (payload.result == "all_match") {
-      const render_letter = createLabel(this, letter, green_letter_style)
+
+    if (result == "finger_key") {
+      const render_letter = createLabel(this, letter, yellow_letter_style)
+      render_letter.anchor.setTo(0.5)
     }
-    if (payload.result == "letter_key") {
+    if (result == "letter_key") {
       const render_letter = createLabel(this, letter, yellow_letter_style)
     }
     render_text.anchor.setTo(0.5)
@@ -66,6 +73,7 @@ export class Lobby extends Phaser.State {
   }
 
   onPress(event) {
+    this.key_press_events[this.count] = event.key
     this.channel.push("key", {key: event.key, count: this.count})
     console.log(event.key, this.count)
     this.count = this.count + 1

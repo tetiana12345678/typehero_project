@@ -36,7 +36,7 @@ defmodule Typehero.Core do
 
   def init(state) do
     # Get text from Ecto...
-    state = %{text: "Hello keith you crazy kid", socket: %{}}
+    state = %{text: "hello", socket: %{}}
     {:ok, state}
   end
 
