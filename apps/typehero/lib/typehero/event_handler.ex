@@ -11,11 +11,11 @@ defmodule Typehero.EventHandler do
   end
 
   def key_event(key, id) do
-    GenServer.cast(:event_handler, {:receive, :key_event, key, id})
+    GenServer.cast(:event_handler, {:key_event, key, id})
   end
 
   def finger_event(finger, id) do
-    GenServer.cast(:event_handler, {:receive, :finger_event, finger, id})
+    GenServer.cast(:event_handler, {:finger_event, finger, id})
   end
 
   def get_state do
@@ -33,13 +33,13 @@ defmodule Typehero.EventHandler do
     {:reply, state, state}
   end
 
-  def handle_cast({:receive, :key_event, key, id}, state) do
+  def handle_cast({:key_event, key, id}, state) do
     finger = get_event(:finger, state, id)
     new_state = process_key(finger, state, id, key)
     {:noreply, new_state}
   end
 
-  def handle_cast({:receive, :finger_event, finger, id}, state) do
+  def handle_cast({:finger_event, finger, id}, state) do
     key = get_event(:key, state, id)
     new_state = process_finger(key, state, id, finger)
     {:noreply, new_state}
