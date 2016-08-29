@@ -4,7 +4,6 @@ defmodule Typehero.Core do
   alias Typehero.EventHandler
 
   def start_link do
-    IO.puts "started Core worker"
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
