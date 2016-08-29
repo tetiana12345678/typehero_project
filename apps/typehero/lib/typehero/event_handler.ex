@@ -7,19 +7,19 @@ defmodule Typehero.EventHandler do
   # CLIENT
 
   def start_link() do
-    GenServer.start_link(__MODULE__, %Events{}, name: :event_handler)
+    GenServer.start_link(__MODULE__, %Events{}, name: __MODULE__)
   end
 
   def key_event(key, id) do
-    GenServer.cast(:event_handler, {:key_event, key, id})
+    GenServer.cast(__MODULE__, {:key_event, key, id})
   end
 
   def finger_event(finger, id) do
-    GenServer.cast(:event_handler, {:finger_event, finger, id})
+    GenServer.cast(__MODULE__, {:finger_event, finger, id})
   end
 
   def get_state do
-    GenServer.call(:event_handler, :get_state)
+    GenServer.call(__MODULE__, :get_state)
   end
 
   # SERVER
