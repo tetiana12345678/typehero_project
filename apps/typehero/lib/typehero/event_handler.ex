@@ -56,43 +56,24 @@ defmodule Typehero.EventHandler do
   end
 
   defp process_key(finger, state, id, key) do
-    result = KeyFingerMatch.match(finger, key)
-    key_finger(result, key, id, state)
+    key_finger(key, finger, id, state)
   end
 
   defp process_finger(key, state, id, finger) do
-    result = KeyFingerMatch.match(finger, key)
-    key_finger(result, key, id, state)
+    key_finger(key, finger, id, state)
   end
 
-  defp key_finger(:match, key, id, events) do
-    key_letter(Core.get_current_letter == key, :match, id, events)
+  defp key_finger(key, finger, id, state) do
+    match = KeyFingerMatch.match(key, finger)
+    result = key_letter(Core.get_current_letter == key, match)
+    Core.event_handler_result(%{result: result, id: id})
+    delete_event(state, id)
   end
 
-  defp key_finger(:dismatch, key, id, events) do
-    key_letter(Core.get_current_letter == key, :dismatch, id, events)
-  end
-
-  defp key_letter(true, :match, id, events) do
-    Core.update_text
-    Core.notify_web(%{result: :all_match, id: id})
-    delete_event(events, id)
-  end
-
-  defp key_letter(true, :dismatch, id, events) do
-    Core.notify_web(%{result: :letter_key, id: id})
-    delete_event(events, id)
-  end
-
-  defp key_letter(false, :match, id, events) do
-    Core.notify_web(%{result: :finger_key, id: id})
-    delete_event(events, id)
-  end
-
-  defp key_letter(false, :dismatch, id, events) do
-    Core.notify_web(%{result: :nothing_match, id: id})
-    delete_event(events, id)
-  end
+  defp key_letter(true, :match), do: :all_match
+  defp key_letter(true, :dismatch), do: :letter_key
+  defp key_letter(false, :match), do: :finger_key
+  defp key_letter(false, :dismatch), do: :nothing_match
 
   defp delete_event(events, id) do
     %{events | key_events: Map.delete(events.key_events, id),

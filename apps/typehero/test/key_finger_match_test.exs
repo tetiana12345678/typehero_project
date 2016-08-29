@@ -4,10 +4,10 @@ defmodule Typehero.KeyFingerMatchTest do
   doctest Typehero.KeyFingerMatch
 
   test "it returns :match if key pressed with right finger" do
-    assert KeyFingerMatch.match(9, "q") == :match
+    assert KeyFingerMatch.match("q", 9) == :match
   end
 
   test "it returns :dismatch if key pressed with wrong finger" do
-    assert KeyFingerMatch.match(8, "q") == :dismatch
+    assert KeyFingerMatch.match("q", 8) == :dismatch
   end
 end

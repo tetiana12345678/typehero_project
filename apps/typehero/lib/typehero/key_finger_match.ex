@@ -23,7 +23,7 @@ defmodule Typehero.KeyFingerMatch do
                 o: @right_fourth, l: @right_fourth,
                 p: @right_pinkie}
 
-  def match(finger, key) do
+  def match(key, finger) do
     (get_finger(key) == finger)
     |> do_match
   end
