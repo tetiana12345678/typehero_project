@@ -66,51 +66,29 @@ defmodule Typehero.EventHandler do
   end
 
   defp correct_key_letter(true, :match, count, events) do
-    IO.puts "notify the UI serial"
-    IO.puts "save event"
-
     Core.update_text
     Core.notify_web(%{result: :all_match, count: count})
-    {:noreply,
-     %{events | key_events: Map.delete(events.key_events, count),
-       finger_events: Map.delete(events.finger_events, count)
-      }
-    }
+    {:noreply, delete_event(events, count)}
   end
 
   defp correct_key_letter(true, :dismatch, count, events) do
-    IO.puts "notify the UI serial"
-    IO.puts "save event"
-
     Core.notify_web(%{result: :letter_key, count: count})
-    {:noreply,
-     %{events | key_events: Map.delete(events.key_events, count),
-       finger_events: Map.delete(events.finger_events, count)
-      }
-    }
+    {:noreply, delete_event(events, count)}
   end
 
   defp correct_key_letter(false, :match, count, events) do
-    IO.puts "notify the UI serial"
-    IO.puts "save event"
-
     Core.notify_web(%{result: :finger_key, count: count})
-    {:noreply,
-     %{events | key_events: Map.delete(events.key_events, count),
-       finger_events: Map.delete(events.finger_events, count)
-      }
-    }
+    {:noreply, delete_event(events, count)}
   end
 
   defp correct_key_letter(false, :dismatch, count, events) do
-    IO.puts "notify the UI serial"
-    IO.puts "save event"
-
     Core.notify_web(%{result: :nothing_match, count: count})
-    {:noreply,
-     %{events | key_events: Map.delete(events.key_events, count),
-       finger_events: Map.delete(events.finger_events, count)
-      }
-    }
+    {:noreply, delete_event(events, count)}
+  end
+
+  defp delete_event(events, count) do
+    %{events | key_events: Map.delete(events.key_events, count),
+      finger_events: Map.delete(events.finger_events, count)
+     }
   end
 end
