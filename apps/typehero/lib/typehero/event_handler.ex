@@ -4,6 +4,8 @@ defmodule Typehero.EventHandler do
   alias Typehero.Core
   alias Typehero.Events
 
+  # CLIENT
+
   def start_link() do
     GenServer.start_link(__MODULE__, %Events{}, name: :event_handler)
   end
@@ -20,6 +22,8 @@ defmodule Typehero.EventHandler do
     GenServer.call(:event_handler, :get_state)
   end
 
+  # SERVER
+
   def init do
     state = %Events{}
     {:ok, state}
@@ -29,17 +33,21 @@ defmodule Typehero.EventHandler do
     {:reply, state, state}
   end
 
-  def handle_cast({:receive, :key_event, key, count}, events = %Events{finger_events: finger_events}) do
-    process_key_event(Map.get(finger_events, count), events, count, key)
+  def handle_cast({:receive, :key_event, key, count}, state = %Events{finger_events: finger_events}) do
+    new_state = process_key_event(Map.get(finger_events, count), state, count, key)
+    {:noreply, new_state}
   end
 
-  def handle_cast({:receive, :finger_event, finger, count}, events = %Events{key_events: key_events}) do
-    process_finger_event(Map.get(key_events, count), events, count, finger)
+  def handle_cast({:receive, :finger_event, finger, count}, state = %Events{key_events: key_events}) do
+    new_state = process_finger_event(Map.get(key_events, count), state, count, finger)
+    {:noreply, new_state}
   end
+
+  # PRIVATE
 
   defp process_key_event(nil, events = %Events{key_events: key_events}, count, key) do
     updated_key_events_map = Map.put(key_events, count, key)
-    {:noreply, Map.put(%Events{}, :key_events, updated_key_events_map)}
+    Map.put(%Events{}, :key_events, updated_key_events_map)
   end
 
   defp process_key_event(finger, struct = %Events{}, count, key) do
@@ -49,7 +57,7 @@ defmodule Typehero.EventHandler do
 
   defp process_finger_event(nil, events = %Events{finger_events: finger_events}, count, finger) do
     updated_finger_events_map = Map.put(finger_events, count, finger)
-    {:noreply, Map.put(%Events{}, :finger_events, updated_finger_events_map)}
+    Map.put(%Events{}, :finger_events, updated_finger_events_map)
   end
 
   defp process_finger_event(key, events = %Events{}, count, finger) do
@@ -68,22 +76,22 @@ defmodule Typehero.EventHandler do
   defp correct_key_letter(true, :match, count, events) do
     Core.update_text
     Core.notify_web(%{result: :all_match, count: count})
-    {:noreply, delete_event(events, count)}
+    delete_event(events, count)
   end
 
   defp correct_key_letter(true, :dismatch, count, events) do
     Core.notify_web(%{result: :letter_key, count: count})
-    {:noreply, delete_event(events, count)}
+    delete_event(events, count)
   end
 
   defp correct_key_letter(false, :match, count, events) do
     Core.notify_web(%{result: :finger_key, count: count})
-    {:noreply, delete_event(events, count)}
+    delete_event(events, count)
   end
 
   defp correct_key_letter(false, :dismatch, count, events) do
     Core.notify_web(%{result: :nothing_match, count: count})
-    {:noreply, delete_event(events, count)}
+    delete_event(events, count)
   end
 
   defp delete_event(events, count) do
