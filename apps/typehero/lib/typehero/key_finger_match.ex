@@ -24,12 +24,8 @@ defmodule Typehero.KeyFingerMatch do
                 p: @right_pinkie}
 
   def match(key, finger) do
-    (get_finger(key) == finger)
-    |> do_match
+    get_finger(key) == finger
   end
-
-  defp do_match(true), do: :match
-  defp do_match(false), do: :dismatch
 
   defp get_finger(key) do
     Map.get(@key_finger, String.to_atom(key))

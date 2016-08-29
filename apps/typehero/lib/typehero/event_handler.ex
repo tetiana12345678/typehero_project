@@ -64,16 +64,19 @@ defmodule Typehero.EventHandler do
   end
 
   defp key_finger(key, finger, id, state) do
-    match = KeyFingerMatch.match(key, finger)
-    result = key_letter(Core.get_current_letter == key, match)
+    match_key_finger = KeyFingerMatch.match(key, finger)
+    match_current_letter = Core.get_current_letter == key
+
+    result = total_match(match_current_letter, match_key_finger)
+
     Core.event_handler_result(%{result: result, id: id})
     delete_event(state, id)
   end
 
-  defp key_letter(true, :match), do: :all_match
-  defp key_letter(true, :dismatch), do: :letter_key
-  defp key_letter(false, :match), do: :finger_key
-  defp key_letter(false, :dismatch), do: :nothing_match
+  defp total_match(true, true), do: :all_match
+  defp total_match(true, false), do: :letter_key
+  defp total_match(false, true), do: :finger_key
+  defp total_match(false, false), do: :nothing_match
 
   defp delete_event(events, id) do
     %{events | key_events: Map.delete(events.key_events, id),
