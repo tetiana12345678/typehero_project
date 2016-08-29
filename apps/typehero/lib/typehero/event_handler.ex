@@ -1,6 +1,6 @@
 defmodule Typehero.EventHandler do
   use GenServer
-  alias Typehero.EventHandler.KeyFingerMatch
+  alias Typehero.KeyFingerMatch
   alias Typehero.Core
   alias Typehero.Events
 
@@ -53,7 +53,7 @@ defmodule Typehero.EventHandler do
   end
 
   defp process_key(finger, struct = %Events{}, id, key) do
-    match_result = KeyFingerMatch.match_key_to_finger(finger, String.to_atom(key))
+    match_result = KeyFingerMatch.match(finger, key)
     correct_key_finger(match_result, key, id, struct)
   end
 
@@ -63,7 +63,7 @@ defmodule Typehero.EventHandler do
   end
 
   defp process_finger(key, events = %Events{}, id, finger) do
-    match_result = KeyFingerMatch.match_key_to_finger(finger, String.to_atom(key))
+    match_result = KeyFingerMatch.match(finger, String.to_atom(key))
     correct_key_finger(match_result, key, id, events)
   end
 
