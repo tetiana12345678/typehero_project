@@ -1,23 +1,29 @@
-import {createLabel} from "../common/labels"
+import {createLabel,
+        coloredLabel} from "../common/labels"
+
+const WHITE = "#FFF"
+const YELLOW = "#FF0"
+const RED = "#F00"
+const GREEN = "#0F0"
 
 export class Lobby extends Phaser.State {
   init(...args) {
     const [channel] = args
     this.channel = channel
-    this.count = 1
+    this.count = 0
     this.key_press_events = {}
   }
+
   create() {
-    this.channel.on("start_game", (payload) => {
-      this.startGame(payload.text)
-      this.text = payload.text
-    })
-    this.channel.on("result", (payload) => {
-      this.renderResult(payload)
-      console.log(payload)
-    })
+    console.log(`Lobby.create`)
+    this.channel.on("start_game", this.onStartGame.bind(this))
+    this.channel.on("result", this.onResult.bind(this))
+
+    this.createStartButton()
+  }
+
+  createStartButton() {
     const start_button = createLabel(this, "start")
-    start_button.anchor.setTo(0.5)
     start_button.inputEnabled = true
     start_button.events.onInputDown.add(() => {
       start_button.destroy()
@@ -25,58 +31,48 @@ export class Lobby extends Phaser.State {
     })
   }
 
-  startGame(text) {
+  onStartGame({text}) {
+    console.log(`startGame ${text}`)
+    this.text = text
     this.renderText(text)
     this.listenKeyboard()
   }
 
-  renderResult({result, count}) {
-    const green_letter_style = {font: "45px Arial", fill: "#008000", align: 'left'}
-    const red_letter_style = {font: "45px Arial", fill: "#008000", align: 'left'}
-    const yellow_letter_style = {font: "45px Arial", fill: "#008000", align: 'left'}
-    const text_style = {font: "45px Arial", fill: "#ffffff", wordWrap: true, wordWrapWidth: 700, align: 'left'}
-
-    const letter = this.key_press_events[count]
-    const render_text = createLabel(this, this.text, text_style)
-
-    if (result == "all_match") {
-      const render_letter = createLabel(this, letter, green_letter_style)
-    }
-
-    if (result == "nothing_match") {
-      const render_letter = createLabel(this, letter, red_letter_style)
-      render_letter.anchor.setTo(0.5)
-    }
-
-    if (result == "finger_key") {
-      const render_letter = createLabel(this, letter, yellow_letter_style)
-      render_letter.anchor.setTo(0.5)
-    }
-    if (result == "letter_key") {
-      const render_letter = createLabel(this, letter, yellow_letter_style)
-    }
-    render_text.anchor.setTo(0.5)
-    const {centerX, centerY} = this.game.world
-    render_text.position.setTo(centerX, centerY)
+  onResult(payload = {result, count}) {
+    console.log(result, count)
+    // const letter = this.key_press_events[count]
+    // if (result == "all_match") {}
+    // if (result == "nothing_match") {}
+    // if (result == "finger_key") {}
+    // if (result == "letter_key") {}
   }
 
   renderText(text) {
-    const style = {font: "45px Arial", fill: "#ffffff", wordWrap: true, wordWrapWidth: 700, align: 'left'}
-    const render_text = createLabel(this, text, style)
-    render_text.anchor.setTo(0.5)
-    const {centerX, centerY} = this.game.world
-    render_text.position.setTo(centerX, centerY)
+    this.text_to_type = createLabel(this, text)
+
+    // all_match      = GREEN
+    // finger_match   = YELLOW
+    // key_match      = YELLOW
+    // nothing_match  = RED
+
   }
 
   listenKeyboard() {
-    this.input.keyboard.addCallbacks(this, this.onPress)
+    this.input.keyboard.addCallbacks(this, this.onKeyPress)
   }
 
-  onPress(event) {
-    this.key_press_events[this.count] = event.key
-    this.channel.push("key", {key: event.key, count: this.count})
-    console.log(event.key, this.count)
+  onKeyPress({key}) {
+    const position = this.count
+    this.text_to_type.addColor(GREEN, position)
+    this.text_to_type.addColor(WHITE, position + 1)
+    // this.recordKeyPress(this.count, event.key)
+    //
+    // this.channel.push("key", {key: event.key, count: this.count})
+    // console.log(event.key, this.count)
     this.count = this.count + 1
   }
 
+  recordKeyPress(id, key) {
+    this.key_press_events[this.count] = event.key
+  }
 }
