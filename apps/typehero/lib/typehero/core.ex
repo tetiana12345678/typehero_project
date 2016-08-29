@@ -1,5 +1,7 @@
 defmodule Typehero.Core do
   use GenServer
+  alias TypeheroWeb.LobbyChannel
+  alias Typehero.EventHandler
 
   def start_link do
     IO.puts "started Core worker"
@@ -14,12 +16,12 @@ defmodule Typehero.Core do
     GenServer.call(__MODULE__, :get_state)
   end
 
-  def key_press(key, count, socket) do
-    GenServer.cast(__MODULE__, {:receive, :key_press, key, count, socket})
+  def key_press(key, id, socket) do
+    GenServer.cast(__MODULE__, {:key, key, id, socket})
   end
 
-  def finger_press(finger, count) do
-    GenServer.cast(__MODULE__, {:receive, :finger, finger, count})
+  def finger_press(finger, id) do
+    GenServer.cast(__MODULE__, {:finger, finger, id})
   end
 
   def get_current_letter do
@@ -48,23 +50,23 @@ defmodule Typehero.Core do
     {:reply, String.first(text), state}
   end
 
-  def handle_cast({:receive, :finger, finger, count}, state) do
-    Typehero.EventHandler.finger_event(finger, count)
+  def handle_cast({:finger, finger, id}, state) do
+    EventHandler.finger_event(finger, id)
     {:noreply, state}
   end
 
-  def handle_cast({:receive, :key_press, key, count, socket}, state) do
-    Typehero.EventHandler.key_event(key, count)
+  def handle_cast({:key, key, id, socket}, state) do
+    EventHandler.key_event(key, id)
     {:noreply, %{state | socket: socket}}
   end
 
   def handle_cast({:event_handler_result, payload = %{result: :all_match}}, state = %{text: text}) do
-    TypeheroWeb.LobbyChannel.handle_in("result", payload, state.socket)
+    LobbyChannel.handle_in("result", payload, state.socket)
     {:noreply, %{state | text: remove_first_letter(text)}}
   end
 
   def handle_cast({:event_handler_result, payload}, state) do
-    TypeheroWeb.LobbyChannel.handle_in("result", payload, state.socket)
+    LobbyChannel.handle_in("result", payload, state.socket)
     {:noreply, state}
   end
 
