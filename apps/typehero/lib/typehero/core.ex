@@ -26,14 +26,6 @@ defmodule Typehero.Core do
     GenServer.call(__MODULE__, :get_current_letter)
   end
 
-  def update_text do
-    GenServer.call(__MODULE__, :update_text)
-  end
-
-  def notify_web(payload) do
-    GenServer.cast(__MODULE__, {:receive, payload})
-  end
-
   def event_handler_result(result) do
     GenServer.cast(__MODULE__, {:event_handler_result, result})
   end
@@ -56,11 +48,6 @@ defmodule Typehero.Core do
     {:reply, String.first(text), state}
   end
 
-  def handle_call(:update_text, _from, state = %{text: text}) do
-    [_, del: updated_text] = String.myers_difference(text, String.first(text))
-    {:reply, %{state | text: updated_text}, state}
-  end
-
   def handle_cast({:receive, :finger, finger, count}, state) do
     Typehero.EventHandler.finger_event(finger, count)
     {:noreply, state}
@@ -71,17 +58,18 @@ defmodule Typehero.Core do
     {:noreply, %{state | socket: socket}}
   end
 
-  def handle_cast({:receive, text}, state) do
-    TypeheroWeb.LobbyChannel.handle_in("result", text, state.socket)
+  def handle_cast({:event_handler_result, payload = %{result: :all_match}}, state = %{text: text}) do
+    TypeheroWeb.LobbyChannel.handle_in("result", payload, state.socket)
+    {:noreply, %{state | text: remove_first_letter(text)}}
+  end
+
+  def handle_cast({:event_handler_result, payload}, state) do
+    TypeheroWeb.LobbyChannel.handle_in("result", payload, state.socket)
     {:noreply, state}
   end
 
-  def handle_cast({:event_handler_result, %{result: :all_match, id: id}}, state) do
-    update_text()
-    notify_web(%{result: :all_match, id: id})
-  end
-
-  def handle_cast({:event_handler_result, %{result: result, id: id}}, state) do
-    notify_web(%{result: result, id: id})
+  defp remove_first_letter(text) do
+    [_, del: updated_text] = String.myers_difference(text, String.first(text))
+    updated_text
   end
 end
