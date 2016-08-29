@@ -1,6 +1,6 @@
 defmodule Typehero.EventHandler do
   use GenServer
-  alias Typehero.KeyFingerMatch
+  alias Typehero.Matcher
   alias Typehero.Core
   alias Typehero.Events
 
@@ -56,27 +56,18 @@ defmodule Typehero.EventHandler do
   end
 
   defp process_key(finger, state, id, key) do
-    key_finger(key, finger, id, state)
+    match_all(key, finger, id, state)
   end
 
   defp process_finger(key, state, id, finger) do
-    key_finger(key, finger, id, state)
+    match_all(key, finger, id, state)
   end
 
-  defp key_finger(key, finger, id, state) do
-    match_key_finger = KeyFingerMatch.match(key, finger)
-    match_current_letter = Core.get_current_letter == key
-
-    result = total_match(match_current_letter, match_key_finger)
-
+  defp match_all(key, finger, id, state) do
+    result = Matcher.match(key, finger, Core.get_current_letter)
     Core.event_handler_result(%{result: result, id: id})
     delete_event(state, id)
   end
-
-  defp total_match(true, true), do: :all_match
-  defp total_match(true, false), do: :letter_key
-  defp total_match(false, true), do: :finger_key
-  defp total_match(false, false), do: :nothing_match
 
   defp delete_event(events, id) do
     %{events | key_events: Map.delete(events.key_events, id),

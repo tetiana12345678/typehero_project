@@ -34,7 +34,8 @@ defmodule Typehero.Core do
 
   def init(state) do
     # Get text from Ecto...
-    state = %{text: "hello", socket: %{}}
+    text_to_type = "hello"
+    state = %{text: text_to_type, socket: %{}}
     {:ok, state}
   end
 
@@ -62,7 +63,8 @@ defmodule Typehero.Core do
 
   def handle_cast({:event_handler_result, payload = %{result: :all_match}}, state = %{text: text}) do
     LobbyChannel.handle_in("result", payload, state.socket)
-    {:noreply, %{state | text: remove_first_letter(text)}}
+    state = %{state | text: remove_first_letter(text)}
+    {:noreply, state}
   end
 
   def handle_cast({:event_handler_result, payload}, state) do
