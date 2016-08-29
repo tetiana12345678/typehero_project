@@ -6,13 +6,13 @@ defmodule TypeheroSerial.Formatter do
     GenServer.start_link(__MODULE__, [], name: :serial)
   end
 
-  def init(count) do
-    count = 0
+  def init(state) do
+    state = 0
     {:ok, serial} = Serial.start_link
     Serial.open(serial, "/dev/cu.usbmodem1421")
     Serial.set_speed(serial, 9600)
     Serial.connect(serial)
-    {:ok, count}
+    {:ok, state}
   end
 
   def handle_info({:elixir_serial, serial, data}, state) do
@@ -27,4 +27,3 @@ end
 
 #To send data to arduino to light LEDs
 #Serial.send_data(serial, <<0x01, 0x02, 0x03>>)
-
