@@ -8,16 +8,16 @@ defmodule Typehero.Core do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
-  def get_text do
-    GenServer.call(__MODULE__, :get_text)
+  def start_game(socket) do
+    GenServer.call(__MODULE__, {:start_game, socket})
   end
 
   def get_state do
     GenServer.call(__MODULE__, :get_state)
   end
 
-  def key_press(key, id, socket) do
-    GenServer.cast(__MODULE__, {:key, key, id, socket})
+  def key_press(key, id) do
+    GenServer.cast(__MODULE__, {:key, key, id})
   end
 
   def finger_press(finger, id) do
@@ -42,8 +42,8 @@ defmodule Typehero.Core do
     {:reply, state, state}
   end
 
-  def handle_call(:get_text, _from, state = %{text: text}) do
-    {:reply, text, state}
+  def handle_call({:start_game, socket}, _from, state = %{text: text}) do
+    {:reply, text, %{state | socket: socket}}
   end
 
   def handle_call(:get_current_letter, _from, state = %{text: text}) do
@@ -55,9 +55,9 @@ defmodule Typehero.Core do
     {:noreply, state}
   end
 
-  def handle_cast({:key, key, id, socket}, state) do
+  def handle_cast({:key, key, id}, state) do
     EventHandler.key_event(key, id)
-    {:noreply, %{state | socket: socket}}
+    {:noreply, state}
   end
 
   def handle_cast({:event_handler_result, payload = %{result: :all_match}}, state = %{text: text}) do
