@@ -5,6 +5,7 @@ defmodule Typehero.CoreSupervisor do
     children = [
       worker(Typehero.Core, [], [restart: :transient])
     ]
+
     opts = [strategy: :one_for_one, name: __MODULE__]
     Supervisor.start_link(children, opts)
   end

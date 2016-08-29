@@ -1,7 +1,7 @@
 defmodule TypeheroWeb.LobbyChannelTest do
   use TypeheroWeb.ChannelCase
 
-  alias TypeheroWeb.LobbyChannel
+  # alias TypeheroWeb.LobbyChannel
 
   # setup do
   #   {:ok, _, socket} =
