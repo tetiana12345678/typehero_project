@@ -7,11 +7,11 @@ defmodule TypeheroTest do
   alias Typehero.Events
 
   test "start_game returns text" do
-    assert Core.start_game(%{}) == "hello"
+    assert Core.start_game(%{}) == "in my opinion..."
   end
 
   test "get_current letter returns first letter in the text" do
-    assert Core.get_current_letter == "h"
+    assert Core.get_current_letter == "i"
   end
 
   test "key_press flow is correct" do
