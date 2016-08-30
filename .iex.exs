@@ -1,2 +1,2 @@
 alias Typehero.EventHandler, as: EH
-alias Typehero.Text
+alias Typehero.Core, as: Core
