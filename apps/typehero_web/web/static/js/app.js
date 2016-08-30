@@ -5,5 +5,9 @@ import {Socket} from "phoenix"
 const socket = new Socket("/socket", {})
 const game = new Game(700, 450, "phaser")
 
-game.start(socket)
-
+// load the fonts
+WebFont.load({
+  custom: { families: ['TheMinion'] },
+  // Lets go!
+  active: game.start(socket)
+})
