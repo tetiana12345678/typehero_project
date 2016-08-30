@@ -1,17 +1,30 @@
+import {keys, assign, map, omap} from "../common/fun"
 import {createLabel,
         coloredLabel} from "../common/labels"
 
-const WHITE = "#FFF"
-const YELLOW = "#FF0"
-const RED = "#F00"
-const GREEN = "#0F0"
+const WHITE =  "white" // "#FFF"
+const YELLOW = "yellow" // "#FF0"
+const RED =    "red" // "#F00"
+const GREEN =  "green" // "#0F0"
+
+const ALL_MATCH    = "all_match"
+const KEY_MATCH    = "right_key_wrong_finger"
+const FINGER_MATCH = "wrong_key_right_finger"
+const NO_MATCH     = "no_match"
+
+// const example_events = [
+//   // { key: "t", id: 0, result: NO_MATCH },
+//   // { key: "y", id: 1, result: NO_MATCH },
+//   // { key: "h", id: 2, result: ALL_MATCH },
+//   // { key: "e", id: 3, result: KEY_MATCH },
+//   // { key: "l", id: 4, result: NO_MATCH }
+// ]
 
 export class Lobby extends Phaser.State {
   init(...args) {
     const [channel] = args
     this.channel = channel
-    this.count = 0
-    this.key_press_events = {}
+    this.key_press_events = []
   }
 
   create() {
@@ -33,28 +46,19 @@ export class Lobby extends Phaser.State {
 
   onStartGame({text}) {
     console.log(`startGame ${text}`)
-    this.text = text
     this.renderText(text)
+    console.log(this)
+    // this.colourText(this.eventsToColours(example_events))
     this.listenKeyboard()
   }
 
-  onResult(payload = {result, count}) {
-    console.log(result, count)
-    // const letter = this.key_press_events[count]
-    // if (result == "all_match") {}
-    // if (result == "nothing_match") {}
-    // if (result == "finger_key") {}
-    // if (result == "letter_key") {}
+  onResult({event_id, result}) {
+    this.updateEvent(event_id, result)
+    this.colourText(this.eventsToColours(this.key_press_events))
   }
 
   renderText(text) {
     this.text_to_type = createLabel(this, text)
-
-    // all_match      = GREEN
-    // finger_match   = YELLOW
-    // key_match      = YELLOW
-    // nothing_match  = RED
-
   }
 
   listenKeyboard() {
@@ -62,17 +66,55 @@ export class Lobby extends Phaser.State {
   }
 
   onKeyPress({key}) {
-    const position = this.count
-    this.text_to_type.addColor(GREEN, position)
-    this.text_to_type.addColor(WHITE, position + 1)
-    // this.recordKeyPress(this.count, event.key)
-    //
-    // this.channel.push("key", {key: event.key, count: this.count})
-    // console.log(event.key, this.count)
-    this.count = this.count + 1
+    if (key == "Meta") { return }
+    const event = this.createEvent(key)
+    const events = this.addEvent(event)
+    this.channel.push("key", event)
   }
 
-  recordKeyPress(id, key) {
-    this.key_press_events[this.count] = event.key
+  eventsToColours(events) {
+    return events.map((o) => {
+      switch (o.result) {
+        case ALL_MATCH: return GREEN
+        case KEY_MATCH: return YELLOW
+        case FINGER_MATCH: return YELLOW
+        case NO_MATCH: return RED
+      }
+    }).filter(el => el !== undefined)
+  }
+
+  colourText(colours) {
+    // apply the colours
+    let position = 0
+    colours.map(colour => {
+      this.text_to_type.addColor(colour, position)
+      if (colour == GREEN) { position++ }
+    })
+    console.log(colours)
+    // colour rest white
+    if (colours.pop() == GREEN) {
+      this.text_to_type.addColor(WHITE, this.currentPosition())
+    } else {
+      this.text_to_type.addColor(WHITE, this.currentPosition() + 1)
+    }
+  }
+
+  currentPosition() {
+    return this.key_press_events.filter(event => event.result == ALL_MATCH).length
+  }
+
+  createEvent(key) {
+    const id = this.key_press_events.length
+    return { key: key, id: id }
+  }
+
+  updateEvent(id, result) {
+    this.key_press_events[id].result = result
+  }
+
+  addEvent(event) {
+    this.key_press_events.push(event)
+    console.log(this.key_press_events)
+    return this.key_press_events
   }
 }

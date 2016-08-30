@@ -11,8 +11,8 @@ defmodule TypeheroWeb.LobbyChannel do
     {:noreply, socket}
   end
 
-  def handle_in("key", %{"key"=> key, "count"=> count}, socket) do
-    Typehero.Core.key_press(key, count, socket)
+  def handle_in("key", %{"id"=> id, "key"=> key}, socket) do
+    Typehero.Core.key_press(key, id)
     {:noreply, socket}
   end
 
