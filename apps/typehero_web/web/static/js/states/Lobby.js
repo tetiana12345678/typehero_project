@@ -52,8 +52,8 @@ export class Lobby extends Phaser.State {
     this.listenKeyboard()
   }
 
-  onResult({event_id, result}) {
-    this.updateEvent(event_id, result)
+  onResult({id, result}) {
+    this.updateEvent(id, result)
     this.colourText(this.eventsToColours(this.key_press_events))
   }
 
@@ -105,10 +105,13 @@ export class Lobby extends Phaser.State {
 
   createEvent(key) {
     const id = this.key_press_events.length
-    return { key: key, id: id }
+    return { key: key, id: id, result: null }
   }
 
   updateEvent(id, result) {
+    console.log(result)
+    console.log(id)
+    console.log(this.key_press_events[id])
     this.key_press_events[id].result = result
   }
 
