@@ -3,6 +3,7 @@ defmodule TypeheroProject.Mixfile do
 
   def project do
     [apps_path: "apps",
+     elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
