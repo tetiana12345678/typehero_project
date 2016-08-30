@@ -43,6 +43,9 @@ defmodule Typehero.Matcher do
     key == letter
   end
 
+  defp match_finger(@right_thumb, " "), do: true
+  defp match_finger(@left_thumb, " "), do: true
+
   defp match_finger(finger, letter) do
     finger == get_finger_number(letter)
   end
