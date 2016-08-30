@@ -90,7 +90,6 @@ export class Lobby extends Phaser.State {
       this.text_to_type.addColor(colour, position)
       if (colour == GREEN) { position++ }
     })
-    console.log(colours)
     // colour rest white
     if (colours.pop() == GREEN) {
       this.text_to_type.addColor(WHITE, this.currentPosition())
@@ -109,15 +108,14 @@ export class Lobby extends Phaser.State {
   }
 
   updateEvent(id, result) {
-    console.log(result)
-    console.log(id)
-    console.log(this.key_press_events[id])
+    const {key} = this.key_press_events[id]
     this.key_press_events[id].result = result
+    console.log(`key: ${key} Id: ${id} result: ${result}`)
   }
 
   addEvent(event) {
+    console.log(event)
     this.key_press_events.push(event)
-    console.log(this.key_press_events)
     return this.key_press_events
   }
 }

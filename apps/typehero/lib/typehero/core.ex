@@ -33,7 +33,7 @@ defmodule Typehero.Core do
 
   def init(state) do
     # Get text from Ecto...
-    text_to_type = "in my opinion..."
+    text_to_type = "nil"
     state = %{text: text_to_type, socket: %{}}
     {:ok, state}
   end
@@ -72,7 +72,9 @@ defmodule Typehero.Core do
   end
 
   defp remove_first_letter(text) do
-    [_, del: updated_text] = String.myers_difference(text, String.first(text))
-    updated_text
+    case String.myers_difference(text, String.first(text)) do
+      [_, del: updated_text] -> updated_text
+      _ -> ""
+    end
   end
 end
