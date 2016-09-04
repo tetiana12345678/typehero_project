@@ -33,7 +33,7 @@ defmodule Typehero.Core do
 
   def init(state) do
     # Get text from Ecto...
-    text_to_type = "nil"
+    text_to_type = "in my opinion..."
     state = %{text: text_to_type, socket: %{}}
     {:ok, state}
   end
