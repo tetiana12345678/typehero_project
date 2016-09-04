@@ -76,3 +76,8 @@ form.link, form.button {
     border-bottom: 0;
   }
 }
+
+@font-face {
+  font-family: 'TheMinion';
+  src: url('/fonts/theminion.otf');
+}
